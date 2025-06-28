@@ -6,14 +6,16 @@ use App\Entity\User;
 use App\Form\RegistrationForm;
 use App\Security\EmailVerifier;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 class RegistrationController extends AbstractController
@@ -22,44 +24,52 @@ class RegistrationController extends AbstractController
     {
     }
 
-    #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, Security $security, EntityManagerInterface $entityManager): Response
+    #[Route('/api/register', name: 'app_register', methods: ['POST'])]
+    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager, ValidatorInterface $validator): JsonResponse
     {
-        $user = new User();
-        $form = $this->createForm(RegistrationForm::class, $user);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** @var string $plainPassword */
-            $plainPassword = $form->get('plainPassword')->getData();
-
-            // encode the plain password
-            $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
-
-            $entityManager->persist($user);
-            $entityManager->flush();
-
-            // generate a signed url and email it to the user
-            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
-                (new TemplatedEmail())
-                    ->from(new Address('mailer@example.com', 'Recipe'))
-                    ->to((string) $user->getEmail())
-                    ->subject('Please Confirm your Email')
-                    ->htmlTemplate('registration/confirmation_email.html.twig')
-            );
-
-            // do anything else you need here, like send an email
-
-            return $security->login($user, 'form_login', 'main');
+        $data = json_decode($request->getContent(), true);
+        
+        if (!$data) {
+            return $this->json(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->render('registration/register.html.twig', [
-            'registrationForm' => $form,
-        ]);
+        $user = new User();
+        $user->setEmail($data['email'] ?? '');
+        $user->setPassword($userPasswordHasher->hashPassword($user, $data['password'] ?? ''));
+
+        // Validate the user
+        $errors = $validator->validate($user);
+        if (count($errors) > 0) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[] = $error->getMessage();
+            }
+            return $this->json(['errors' => $errorMessages], Response::HTTP_BAD_REQUEST);
+        }
+
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        // Send confirmation email (simplified without Twig template)
+        $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
+            (new Email())
+                ->from(new Address('mailer@example.com', 'Recipe'))
+                ->to((string) $user->getEmail())
+                ->subject('Please Confirm your Email')
+                ->text('Please confirm your email by clicking the link in your email.')
+        );
+
+        return $this->json([
+            'message' => 'User registered successfully. Please check your email to verify your account.',
+            'user' => [
+                'id' => $user->getId(),
+                'email' => $user->getEmail()
+            ]
+        ], Response::HTTP_CREATED);
     }
 
-    #[Route('/verify/email', name: 'app_verify_email')]
-    public function verifyUserEmail(Request $request): Response
+    #[Route('/api/verify/email', name: 'app_verify_email', methods: ['GET'])]
+    public function verifyUserEmail(Request $request): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
@@ -69,14 +79,13 @@ class RegistrationController extends AbstractController
             $user = $this->getUser();
             $this->emailVerifier->handleEmailConfirmation($request, $user);
         } catch (VerifyEmailExceptionInterface $exception) {
-            $this->addFlash('verify_email_error', $exception->getReason());
-
-            return $this->redirectToRoute('app_register');
+            return $this->json([
+                'error' => $exception->getReason()
+            ], Response::HTTP_BAD_REQUEST);
         }
 
-        // @TODO Change the redirect on success and handle or remove the flash message in your templates
-        $this->addFlash('success', 'Your email address has been verified.');
-
-        return $this->redirectToRoute('app_register');
+        return $this->json([
+            'message' => 'Your email address has been verified successfully.'
+        ]);
     }
 }

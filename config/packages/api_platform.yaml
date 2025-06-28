@@ -1,0 +1,23 @@
+api_platform:
+    title: Recipes API
+    version: 1.0.0
+    description: Notebook for your recipes and inspiration.
+    defaults:
+        stateless: true
+        cache_headers:
+            vary: ['Content-Type', 'Authorization', 'Origin']
+        extra_properties:
+            standard_put: true
+        pagination_client_enabled: true
+        pagination_client_items_per_page: true
+    docs_formats:
+        jsonld: ['application/ld+json']
+        jsonopenapi: ['application/vnd.openapi+json']
+        html: ['text/html']
+    swagger:
+        api_keys:
+            JWT:
+                name: Authorization
+                type: header
+    enable_swagger_ui: true
+    enable_docs: true

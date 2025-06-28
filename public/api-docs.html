@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipes API Documentation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+        }
+        .card {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 10px 10px 10px 0;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        .endpoint {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        .method {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .url {
+            font-family: monospace;
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🍳 Recipes API Documentation</h1>
+        <p>A RESTful API for managing recipes with different version types</p>
+    </div>
+
+    <div class="card">
+        <h2>📖 Interactive API Documentation</h2>
+        <p>Access the interactive Swagger documentation to explore and test the API endpoints:</p>
+        <a href="/api" class="btn">Open Swagger UI</a>
+        <a href="/api/docs.json" class="btn btn-secondary">Download OpenAPI JSON</a>
+    </div>
+
+    <div class="card">
+        <h2>🔐 Authentication</h2>
+        <p>All API endpoints require authentication. Use JSON login to obtain a session:</p>
+        <div class="endpoint">
+            <span class="method">POST</span> <span class="url">/api/login</span><br>
+            <strong>Body:</strong> <code>{"email": "user@example.com", "password": "password"}</code>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>📋 Available Endpoints</h2>
+        
+        <h3>Recipes</h3>
+        <div class="endpoint">
+            <span class="method">GET</span> <span class="url">/api/recipes</span> - List all recipes
+        </div>
+        <div class="endpoint">
+            <span class="method">POST</span> <span class="url">/api/recipes</span> - Create a new recipe
+        </div>
+        <div class="endpoint">
+            <span class="method">GET</span> <span class="url">/api/recipes/{id}</span> - Get a specific recipe
+        </div>
+        <div class="endpoint">
+            <span class="method">PUT</span> <span class="url">/api/recipes/{id}</span> - Update a recipe
+        </div>
+        <div class="endpoint">
+            <span class="method">DELETE</span> <span class="url">/api/recipes/{id}</span> - Delete a recipe
+        </div>
+
+        <h3>Recipe Versions</h3>
+        <div class="endpoint">
+            <span class="method">GET</span> <span class="url">/api/recipe_versions</span> - List all recipe versions
+        </div>
+        <div class="endpoint">
+            <span class="method">POST</span> <span class="url">/api/full_recipe_versions</span> - Create a full recipe version
+        </div>
+        <div class="endpoint">
+            <span class="method">POST</span> <span class="url">/api/link_recipe_versions</span> - Create a link recipe version
+        </div>
+        <div class="endpoint">
+            <span class="method">POST</span> <span class="url">/api/book_recipe_versions</span> - Create a book recipe version
+        </div>
+
+        <h3>Ingredients & Steps</h3>
+        <div class="endpoint">
+            <span class="method">GET</span> <span class="url">/api/ingredients</span> - List all ingredients
+        </div>
+        <div class="endpoint">
+            <span class="method">POST</span> <span class="url">/api/ingredients</span> - Create a new ingredient
+        </div>
+        <div class="endpoint">
+            <span class="method">GET</span> <span class="url">/api/steps</span> - List all steps
+        </div>
+        <div class="endpoint">
+            <span class="method">POST</span> <span class="url">/api/steps</span> - Create a new step
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>🔧 Recipe Version Types</h2>
+        <ul>
+            <li><strong>Full Recipe Version:</strong> Complete recipes with ingredients, steps, and descriptions</li>
+            <li><strong>Link Recipe Version:</strong> References to online recipes with URL and author</li>
+            <li><strong>Book Recipe Version:</strong> References to recipes in books with title, author, and page number</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>📝 Example Usage</h2>
+        <p>Here's an example of creating a full recipe version:</p>
+        <pre><code>POST /api/full_recipe_versions
+Content-Type: application/json
+
+{
+  "name": "Chocolate Chip Cookies",
+  "recipe": "/api/recipes/1",
+  "recipeName": "Classic Chocolate Chip Cookies",
+  "description": "Delicious homemade chocolate chip cookies",
+  "ingredients": [
+    {
+      "name": "All-purpose flour",
+      "amount": "2.5",
+      "unit": "cups",
+      "orderNumber": 1
+    }
+  ],
+  "steps": [
+    {
+      "description": "Preheat oven to 375°F (190°C)",
+      "orderNumber": 1
+    }
+  ]
+}</code></pre>
+    </div>
+
+    <div class="card">
+        <h2>🚀 Getting Started</h2>
+        <ol>
+            <li>Click "Open Swagger UI" to access the interactive documentation</li>
+            <li>Use the authentication endpoints to log in</li>
+            <li>Explore the available endpoints and test them directly in the browser</li>
+            <li>Use the generated client code or integrate with your application</li>
+        </ol>
+    </div>
+</body>
+</html> 

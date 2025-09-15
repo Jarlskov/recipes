@@ -15,6 +15,10 @@ class RecipeLink
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
+    #[ORM\ManyToOne(targetEntity: Dish::class, inversedBy: 'recipeLinks')]
+    #[ORM\JoinColumn(name: 'dish_id', referencedColumnName: 'id', onDelete: 'CASCADE', nullable: false)]
+    private Dish $dish;
+
     #[ORM\Column(type: 'string', length: 500)]
     private string $url;
 
@@ -33,9 +37,19 @@ class RecipeLink
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    public function __construct(Dish $dish)
+    {
+        $this->dish = $dish;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getDish(): Dish
+    {
+        return $this->dish;
     }
 
     public function getUrl(): string

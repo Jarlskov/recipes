@@ -2,15 +2,23 @@
 
 namespace App\Tests\Entity;
 
+use App\Entity\Dish;
 use App\Entity\Rating;
 use App\Entity\RecipeLink;
 use PHPUnit\Framework\TestCase;
 
 class RecipeLinkTest extends TestCase
 {
+	private function createDish(): Dish
+	{
+		$dish = new Dish();
+		$dish->setName('Dish')->setDescription('Desc');
+		return $dish;
+	}
+
 	public function testCanSetAndGetBasicFields(): void
 	{
-		$link = new RecipeLink();
+		$link = new RecipeLink($this->createDish());
 		$link->setUrl('https://example.com/recipe')
 			->setName('Best Pancakes')
 			->setAuthorName('Jane Doe');
@@ -22,14 +30,14 @@ class RecipeLinkTest extends TestCase
 
 	public function testRatingEnumConversion(): void
 	{
-		$link = new RecipeLink();
+		$link = new RecipeLink($this->createDish());
 		$link->setRating(Rating::FOUR);
 		$this->assertSame(Rating::FOUR, $link->getRating());
 	}
 
 	public function testNullableRating(): void
 	{
-		$link = new RecipeLink();
+		$link = new RecipeLink($this->createDish());
 		$this->assertNull($link->getRating());
 		$link->setRating(null);
 		$this->assertNull($link->getRating());
@@ -37,7 +45,7 @@ class RecipeLinkTest extends TestCase
 
 	public function testLifecycleTimestampsAreSet(): void
 	{
-		$link = new RecipeLink();
+		$link = new RecipeLink($this->createDish());
 
 		// Simulate Doctrine PrePersist
 		$link->setCreatedAtValue();

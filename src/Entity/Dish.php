@@ -35,6 +35,9 @@ class Dish
 	#[ORM\OneToMany(mappedBy: 'dish', targetEntity: RecipeLink::class, cascade: ['persist'], orphanRemoval: true)]
 	private Collection $recipeLinks;
 
+	#[ORM\OneToOne(mappedBy: 'dish', targetEntity: FoodItem::class, cascade: ['persist', 'remove'])]
+	private ?FoodItem $foodItem = null;
+
 	public function __construct()
 	{
 		$this->recipeLinks = new ArrayCollection();
@@ -122,6 +125,17 @@ class Dish
 	public function removeRecipeLink(RecipeLink $recipeLink): self
 	{
 		$this->recipeLinks->removeElement($recipeLink);
+		return $this;
+	}
+
+	public function getFoodItem(): ?FoodItem
+	{
+		return $this->foodItem;
+	}
+
+	public function setFoodItem(?FoodItem $foodItem): self
+	{
+		$this->foodItem = $foodItem;
 		return $this;
 	}
 }

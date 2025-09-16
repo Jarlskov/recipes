@@ -215,6 +215,125 @@ abstract class Quantity
         }
     }
 
+    // Helper methods for Ingredient entity
+    public static function createFromAmountAndUnit(float $amount, string $unit): Mass|Volume
+    {
+        if ($unit === '') {
+            throw new \InvalidArgumentException("Unit cannot be empty");
+        }
+
+        if (!self::isValidUnit($unit)) {
+            throw new \InvalidArgumentException("Invalid unit: {$unit}");
+        }
+
+        if ($amount <= 0) {
+            throw new \InvalidArgumentException("Amount must be positive, got: {$amount}");
+        }
+
+        if (self::isMassUnit($unit)) {
+            return match ($unit) {
+                'g' => self::grams($amount),
+                'kg' => self::kilograms($amount),
+                default => throw new \InvalidArgumentException("Unsupported mass unit: {$unit}"),
+            };
+        } elseif (self::isVolumeUnit($unit)) {
+            return match ($unit) {
+                'ml' => self::milliliters($amount),
+                'cl' => self::centiliters($amount),
+                'dl' => self::deciliters($amount),
+                'l' => self::liters($amount),
+                'tsp' => self::teaspoons($amount),
+                'tbsp' => self::tablespoons($amount),
+                default => throw new \InvalidArgumentException("Unsupported volume unit: {$unit}"),
+            };
+        }
+
+        throw new \InvalidArgumentException("Unknown unit type: {$unit}");
+    }
+
+    public static function convertToAmountAndUnit(Mass|Volume $quantity): array
+    {
+        if ($quantity instanceof Mass) {
+            // Try to preserve the original unit if it's a whole number
+            $originalUnit = self::getOriginalUnitFromMass($quantity);
+            if ($originalUnit) {
+                return [
+                    'amount' => $quantity->toUnit($originalUnit),
+                    'unit' => $originalUnit
+                ];
+            } else {
+                // Default to grams for mass
+                return [
+                    'amount' => $quantity->toUnit('g'),
+                    'unit' => 'g'
+                ];
+            }
+        } elseif ($quantity instanceof Volume) {
+            // Try to preserve the original unit if it's a whole number
+            $originalUnit = self::getOriginalUnitFromQuantity($quantity);
+            if ($originalUnit) {
+                return [
+                    'amount' => $quantity->toUnit($originalUnit),
+                    'unit' => $originalUnit
+                ];
+            } else {
+                // Default to milliliters for volume
+                return [
+                    'amount' => $quantity->toUnit('ml'),
+                    'unit' => 'ml'
+                ];
+            }
+        }
+
+        throw new \InvalidArgumentException("Unknown quantity type");
+    }
+
+    /**
+     * Helper method to determine the best unit from a mass quantity object
+     */
+    private static function getOriginalUnitFromMass(Mass $mass): ?string
+    {
+        // Check if the mass is a whole number in any of our supported mass units
+        // Prioritize larger units (kg over g) when both are whole numbers
+        $supportedUnits = ['kg', 'g']; // Ordered from largest to smallest
+        
+        foreach ($supportedUnits as $unit) {
+            try {
+                $value = $mass->toUnit($unit);
+                if (abs($value - round($value)) < 0.001) { // Close to whole number
+                    return $unit;
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Helper method to determine the best unit from a volume quantity object
+     */
+    private static function getOriginalUnitFromQuantity(Volume $volume): ?string
+    {
+        // Check if the volume is a whole number in any of our supported units
+        // Prioritize larger units and cooking units when they result in whole numbers
+        $supportedUnits = ['l', 'dl', 'cl', 'ml', 'tbsp', 'tsp']; // Ordered from largest to smallest
+        
+        foreach ($supportedUnits as $unit) {
+            try {
+                $value = $volume->toUnit($unit);
+                if (abs($value - round($value)) < 0.001) { // Close to whole number
+                    return $unit;
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+        
+        return null;
+    }
+
     private static function formatMassSmart(Mass $mass, int $precision): string
     {
         $grams = $mass->toUnit('g');

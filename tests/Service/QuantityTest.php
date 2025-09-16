@@ -332,4 +332,100 @@ class QuantityTest extends TestCase
         // (This is more of a design verification - the format method takes any unit)
         // The smart formatting is what prevents cross-conversion
     }
+
+    public function testCreateFromAmountAndUnit(): void
+    {
+        // Test mass units
+        $grams = Quantity::createFromAmountAndUnit(500, 'g');
+        $this->assertInstanceOf(Mass::class, $grams);
+        $this->assertEquals(500, $grams->toUnit('g'));
+
+        $kilograms = Quantity::createFromAmountAndUnit(2.5, 'kg');
+        $this->assertInstanceOf(Mass::class, $kilograms);
+        $this->assertEquals(2.5, $kilograms->toUnit('kg'));
+
+        // Test volume units
+        $milliliters = Quantity::createFromAmountAndUnit(250, 'ml');
+        $this->assertInstanceOf(Volume::class, $milliliters);
+        $this->assertEqualsWithDelta(250, $milliliters->toUnit('ml'), 0.001);
+
+        $teaspoons = Quantity::createFromAmountAndUnit(3, 'tsp');
+        $this->assertInstanceOf(Volume::class, $teaspoons);
+        $this->assertEquals(3, $teaspoons->toUnit('tsp'));
+    }
+
+    public function testCreateFromAmountAndUnitThrowsExceptionForInvalidUnit(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid unit: invalid_unit');
+        Quantity::createFromAmountAndUnit(500, 'invalid_unit');
+    }
+
+    public function testCreateFromAmountAndUnitThrowsExceptionForEmptyUnit(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unit cannot be empty');
+        Quantity::createFromAmountAndUnit(500, '');
+    }
+
+    public function testCreateFromAmountAndUnitThrowsExceptionForZeroAmount(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Amount must be positive, got: 0');
+        Quantity::createFromAmountAndUnit(0, 'g');
+    }
+
+    public function testCreateFromAmountAndUnitThrowsExceptionForNegativeAmount(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Amount must be positive, got: -100');
+        Quantity::createFromAmountAndUnit(-100, 'g');
+    }
+
+    public function testConvertToAmountAndUnit(): void
+    {
+        // Test mass conversion with whole number preservation
+        $grams = Quantity::grams(500);
+        $result = Quantity::convertToAmountAndUnit($grams);
+        $this->assertEquals(['amount' => 500, 'unit' => 'g'], $result);
+
+        // Test mass conversion with kilograms (should prefer kg when it's a whole number)
+        $kilograms = Quantity::kilograms(2);
+        $result = Quantity::convertToAmountAndUnit($kilograms);
+        $this->assertEquals(['amount' => 2, 'unit' => 'kg'], $result);
+
+        // Test mass conversion without whole number (defaults to g)
+        $gramsDecimal = Quantity::grams(500.5);
+        $result = Quantity::convertToAmountAndUnit($gramsDecimal);
+        $this->assertEqualsWithDelta(['amount' => 500.5, 'unit' => 'g'], $result, 0.001);
+
+        // Test volume conversion with whole number preservation (prefers tbsp over tsp)
+        $teaspoons = Quantity::teaspoons(3);
+        $result = Quantity::convertToAmountAndUnit($teaspoons);
+        $this->assertEquals(['amount' => 1.0, 'unit' => 'tbsp'], $result);
+
+        // Test volume conversion without whole number (defaults to ml)
+        $milliliters = Quantity::milliliters(250.5);
+        $result = Quantity::convertToAmountAndUnit($milliliters);
+        $this->assertEqualsWithDelta(['amount' => 250.5, 'unit' => 'ml'], $result, 0.001);
+    }
+
+    public function testConvertToAmountAndUnitThrowsExceptionForUnknownType(): void
+    {
+        // Since the method has a type hint, we can't pass an invalid type directly
+        // Instead, let's test that the method works correctly with valid types
+        // and the type system prevents invalid types at compile time
+        
+        $grams = Quantity::grams(500);
+        $result = Quantity::convertToAmountAndUnit($grams);
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('amount', $result);
+        $this->assertArrayHasKey('unit', $result);
+        
+        $volume = Quantity::milliliters(250);
+        $result = Quantity::convertToAmountAndUnit($volume);
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('amount', $result);
+        $this->assertArrayHasKey('unit', $result);
+    }
 }

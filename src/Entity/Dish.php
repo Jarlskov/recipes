@@ -38,9 +38,14 @@ class Dish
 	#[ORM\OneToOne(mappedBy: 'dish', targetEntity: FoodItem::class, cascade: ['persist', 'remove'])]
 	private ?FoodItem $foodItem = null;
 
+	/** @var Collection<int, Recipe> */
+	#[ORM\OneToMany(mappedBy: 'dish', targetEntity: Recipe::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+	private Collection $recipes;
+
 	public function __construct()
 	{
 		$this->recipeLinks = new ArrayCollection();
+		$this->recipes = new ArrayCollection();
 	}
 
 	public function getId(): ?int
@@ -136,6 +141,33 @@ class Dish
 	public function setFoodItem(?FoodItem $foodItem): self
 	{
 		$this->foodItem = $foodItem;
+		return $this;
+	}
+
+	/**
+	 * @return Collection<int, Recipe>
+	 */
+	public function getRecipes(): Collection
+	{
+		return $this->recipes;
+	}
+
+	public function addRecipe(Recipe $recipe): self
+	{
+		if (!$this->recipes->contains($recipe)) {
+			$this->recipes->add($recipe);
+			$recipe->setDish($this);
+		}
+		return $this;
+	}
+
+	public function removeRecipe(Recipe $recipe): self
+	{
+		if ($this->recipes->removeElement($recipe)) {
+			if ($recipe->getDish() === $this) {
+				$recipe->setDish(null);
+			}
+		}
 		return $this;
 	}
 }

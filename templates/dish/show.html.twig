@@ -1,0 +1,105 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ dish.name }}{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto">
+    <!-- Header with actions -->
+    <div class="flex justify-between items-start mb-6">
+        <div>
+            <h1 class="text-3xl font-bold mb-4">{{ dish.name }}</h1>
+            <p class="text-lg text-gray-600 mb-4">{{ dish.description }}</p>
+            
+            <div class="mb-6">
+                {% if dish.dailyMealFriendly %}
+                    <span class="badge badge-success">Daily Meal Friendly</span>
+                {% endif %}
+                {% if dish.prepFriendly %}
+                    <span class="badge badge-info">Prep Friendly</span>
+                {% endif %}
+                {% if dish.freezerFriendly %}
+                    <span class="badge badge-warning">Freezer Friendly</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Action buttons -->
+        <div class="flex gap-2">
+            <a href="{{ path('dish_edit', {'id': dish.id}) }}" class="btn-icon" title="Edit dish">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+            </a>
+            <form method="post" action="{{ path('dish_delete', {'id': dish.id}) }}" class="btn-icon-form" onsubmit="return confirm('Are you sure you want to delete this dish?')">
+                <button type="submit" class="btn-icon btn-icon-danger" title="Delete dish">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3,6 5,6 21,6"></polyline>
+                        <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Content sections -->
+    <div class="grid grid-2 gap-6">
+        <!-- Recipes -->
+        <div class="card">
+            <div class="card-body">
+                <h2 class="text-xl font-semibold mb-4">Recipes ({{ dish.recipes|length }})</h2>
+                {% if dish.recipes is empty %}
+                    <p class="text-gray-600">No recipes yet for this dish.</p>
+                {% else %}
+                    <div class="space-y-3">
+                        {% for recipe in dish.recipes %}
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-semibold">{{ recipe.name }}</h3>
+                                        <p class="text-gray-600 text-sm">{{ recipe.description }}</p>
+                                    </div>
+                                    {% if recipe.rating %}
+                                        <span class="badge badge-info">{{ recipe.rating.label }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Recipe Links -->
+        <div class="card">
+            <div class="card-body">
+                <h2 class="text-xl font-semibold mb-4">Recipe Links ({{ dish.recipeLinks|length }})</h2>
+                {% if dish.recipeLinks is empty %}
+                    <p class="text-gray-600">No external recipe links yet.</p>
+                {% else %}
+                    <div class="space-y-3">
+                        {% for link in dish.recipeLinks %}
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-semibold">{{ link.name }}</h3>
+                                        <p class="text-gray-600 text-sm">by {{ link.authorName }}</p>
+                                        <a href="{{ link.url }}" target="_blank" class="text-primary-color text-sm hover:underline">
+                                            {{ link.url }}
+                                        </a>
+                                    </div>
+                                    {% if link.rating %}
+                                        <span class="badge badge-info">{{ link.rating.label }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

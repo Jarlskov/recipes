@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Recipe Manager{% endblock %}
+
+{% block body %}
+<div class="text-center mb-8">
+    <h1 class="text-3xl font-bold mb-4">Recipe Manager</h1>
+    <p class="text-lg text-gray-600">Organize your recipes, track cooking sessions, and manage your culinary creations.</p>
+</div>
+
+<div class="grid grid-2">
+    <div class="card">
+        <div class="card-body text-center">
+            <h2 class="text-xl font-semibold mb-4">Manage Dishes</h2>
+            <p class="text-gray-600 mb-6">Create and organize different types of dishes with their characteristics.</p>
+            <a href="{{ path('dish_index') }}" class="btn btn-primary">View Dishes</a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body text-center">
+            <h2 class="text-xl font-semibold mb-4">Recipes</h2>
+            <p class="text-gray-600 mb-6">Coming soon! Manage detailed recipes with ingredients and cooking steps.</p>
+            <button class="btn btn-secondary" disabled>Coming Soon</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

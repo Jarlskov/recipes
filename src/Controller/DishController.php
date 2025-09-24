@@ -22,7 +22,8 @@ class DishController extends AbstractController
     #[Route('/', name: 'index', methods: ['GET'])]
     public function index(): Response
     {
-        $dishes = $this->entityManager->getRepository(Dish::class)->findAll();
+        $user = $this->getUser();
+        $dishes = $this->entityManager->getRepository(Dish::class)->findBy(['owner' => $user]);
 
         return $this->render('dish/index.html.twig', [
             'dishes' => $dishes,
@@ -33,6 +34,7 @@ class DishController extends AbstractController
     public function new(Request $request): Response
     {
         $dish = new Dish();
+        $dish->setOwner($this->getUser());
         
         if ($request->isMethod('POST')) {
             $name = $request->request->get('name');
@@ -66,6 +68,8 @@ class DishController extends AbstractController
     #[Route('/{id}', name: 'show', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function show(Dish $dish): Response
     {
+        $this->denyAccessUnlessGranted('OWNER', $dish);
+        
         return $this->render('dish/show.html.twig', [
             'dish' => $dish,
         ]);
@@ -74,6 +78,8 @@ class DishController extends AbstractController
     #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function edit(Request $request, Dish $dish): Response
     {
+        $this->denyAccessUnlessGranted('OWNER', $dish);
+        
         if ($request->isMethod('POST')) {
             $name = $request->request->get('name');
             $description = $request->request->get('description');
@@ -105,6 +111,8 @@ class DishController extends AbstractController
     #[Route('/{id}/delete', name: 'delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function delete(Dish $dish): Response
     {
+        $this->denyAccessUnlessGranted('OWNER', $dish);
+        
         $this->entityManager->remove($dish);
         $this->entityManager->flush();
 

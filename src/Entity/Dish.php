@@ -44,6 +44,10 @@ class Dish
 	#[ORM\OneToMany(mappedBy: 'dish', targetEntity: Recipe::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
 	private Collection $recipes;
 
+	#[ORM\ManyToOne(targetEntity: User::class)]
+	#[ORM\JoinColumn(nullable: false)]
+	private ?User $owner = null;
+
 	public function __construct()
 	{
 		$this->recipeLinks = new ArrayCollection();
@@ -170,6 +174,17 @@ class Dish
 				$recipe->setDish(null);
 			}
 		}
+		return $this;
+	}
+
+	public function getOwner(): ?User
+	{
+		return $this->owner;
+	}
+
+	public function setOwner(?User $owner): self
+	{
+		$this->owner = $owner;
 		return $this;
 	}
 }

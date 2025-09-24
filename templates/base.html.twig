@@ -51,6 +51,11 @@
                     margin: 0 auto;
                 }
                 
+                .max-w-md {
+                    max-width: 28rem;
+                    margin: 0 auto;
+                }
+                
                 /* Navigation */
                 .navbar {
                     background: var(--surface);
@@ -77,6 +82,13 @@
                 .navbar-nav {
                     display: flex;
                     gap: 2rem;
+                    align-items: center;
+                }
+                
+                .nav-user {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
                 }
                 
                 .nav-link {
@@ -507,7 +519,16 @@
                 <div class="navbar-content">
                     <a class="navbar-brand" href="{{ path('home') }}">Recipe Manager</a>
                     <div class="navbar-nav">
-                        <a class="nav-link" href="{{ path('dish_index') }}">Dishes</a>
+                        {% if app.user %}
+                            <a class="nav-link" href="{{ path('dish_index') }}">Dishes</a>
+                            <div class="nav-user">
+                                <span class="text-gray-600">{{ app.user.firstName }}</span>
+                                <a href="{{ path('logout') }}" class="nav-link">Logout</a>
+                            </div>
+                        {% else %}
+                            <a class="nav-link" href="{{ path('login') }}">Login</a>
+                            <a class="nav-link" href="{{ path('register') }}">Register</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>

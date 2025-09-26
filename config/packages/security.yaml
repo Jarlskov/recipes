@@ -22,7 +22,7 @@ security:
             form_login:
                 login_path: login
                 check_path: login
-                default_target_path: home
+                default_target_path: dish_index
                 enable_csrf: true
             logout:
                 path: logout

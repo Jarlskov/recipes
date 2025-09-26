@@ -517,10 +517,13 @@
         <nav class="navbar">
             <div class="container">
                 <div class="navbar-content">
-                    <a class="navbar-brand" href="{{ path('home') }}">Recipe Manager</a>
+                    {% if app.user %}
+                        <a class="navbar-brand" href="{{ path('dish_index') }}">Recipe Manager</a>
+                    {% else %}
+                        <a class="navbar-brand" href="{{ path('home') }}">Recipe Manager</a>
+                    {% endif %}
                     <div class="navbar-nav">
                         {% if app.user %}
-                            <a class="nav-link" href="{{ path('dish_index') }}">Dishes</a>
                             <div class="nav-user">
                                 <span class="text-gray-600">{{ app.user.firstName }}</span>
                                 <a href="{{ path('logout') }}" class="nav-link">Logout</a>

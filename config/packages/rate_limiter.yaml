@@ -1,0 +1,14 @@
+framework:
+    rate_limiter:
+        login_attempts:
+            policy: 'token_bucket'
+            limit: 5
+            rate:
+                interval: '15 minutes'
+                amount: 5
+        login_attempts_per_ip:
+            policy: 'token_bucket'
+            limit: 20
+            rate:
+                interval: '15 minutes'
+                amount: 20

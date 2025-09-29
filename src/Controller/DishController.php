@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Dish;
+use App\Form\DishType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,32 +37,19 @@ class DishController extends AbstractController
         $dish = new Dish();
         $dish->setOwner($this->getUser());
         
-        if ($request->isMethod('POST')) {
-            $name = $request->request->get('name');
-            $description = $request->request->get('description');
-            $dailyMealFriendly = $request->request->getBoolean('daily_meal_friendly');
-            $prepFriendly = $request->request->getBoolean('prep_friendly');
-            $freezerFriendly = $request->request->getBoolean('freezer_friendly');
+        $form = $this->createForm(DishType::class, $dish);
+        $form->handleRequest($request);
 
-            if ($name && $description) {
-                $dish->setName($name);
-                $dish->setDescription($description);
-                $dish->setDailyMealFriendly($dailyMealFriendly);
-                $dish->setPrepFriendly($prepFriendly);
-                $dish->setFreezerFriendly($freezerFriendly);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->persist($dish);
+            $this->entityManager->flush();
 
-                $this->entityManager->persist($dish);
-                $this->entityManager->flush();
-
-                $this->addFlash('success', 'Dish created successfully!');
-                return $this->redirectToRoute('dish_show', ['id' => $dish->getId()]);
-            }
-
-            $this->addFlash('error', 'Name and description are required.');
+            $this->addFlash('success', 'Dish created successfully!');
+            return $this->redirectToRoute('dish_show', ['id' => $dish->getId()]);
         }
 
         return $this->render('dish/new.html.twig', [
-            'dish' => $dish,
+            'form' => $form,
         ]);
     }
 
@@ -80,30 +68,18 @@ class DishController extends AbstractController
     {
         $this->denyAccessUnlessGranted('OWNER', $dish);
         
-        if ($request->isMethod('POST')) {
-            $name = $request->request->get('name');
-            $description = $request->request->get('description');
-            $dailyMealFriendly = $request->request->getBoolean('daily_meal_friendly');
-            $prepFriendly = $request->request->getBoolean('prep_friendly');
-            $freezerFriendly = $request->request->getBoolean('freezer_friendly');
+        $form = $this->createForm(DishType::class, $dish);
+        $form->handleRequest($request);
 
-            if ($name && $description) {
-                $dish->setName($name);
-                $dish->setDescription($description);
-                $dish->setDailyMealFriendly($dailyMealFriendly);
-                $dish->setPrepFriendly($prepFriendly);
-                $dish->setFreezerFriendly($freezerFriendly);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
 
-                $this->entityManager->flush();
-
-                $this->addFlash('success', 'Dish updated successfully!');
-                return $this->redirectToRoute('dish_show', ['id' => $dish->getId()]);
-            }
-
-            $this->addFlash('error', 'Name and description are required.');
+            $this->addFlash('success', 'Dish updated successfully!');
+            return $this->redirectToRoute('dish_show', ['id' => $dish->getId()]);
         }
 
         return $this->render('dish/edit.html.twig', [
+            'form' => $form,
             'dish' => $dish,
         ]);
     }

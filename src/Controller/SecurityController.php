@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Form\UserRegistrationType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,38 +49,33 @@ class SecurityController extends AbstractController
     #[Route('/register', name: 'register', methods: ['GET', 'POST'])]
     public function register(Request $request): Response
     {
-        if ($request->isMethod('POST')) {
-            $email = $request->request->get('email');
-            $password = $request->request->get('password');
-            $firstName = $request->request->get('firstName');
-            $lastName = $request->request->get('lastName');
+        $user = new User();
+        $form = $this->createForm(UserRegistrationType::class, $user);
+        $form->handleRequest($request);
 
-            if ($email && $password && $firstName && $lastName) {
-                // Check if user already exists
-                $existingUser = $this->entityManager->getRepository(User::class)->findByEmail($email);
-                if ($existingUser) {
-                    $this->addFlash('error', 'An account with this email already exists.');
-                } else {
-                    $user = new User();
-                    $user->setEmail($email);
-                    $user->setFirstName($firstName);
-                    $user->setLastName($lastName);
-                    
-                    // Hash the password
-                    $hashedPassword = $this->passwordHasher->hashPassword($user, $password);
-                    $user->setPassword($hashedPassword);
-
-                    $this->entityManager->persist($user);
-                    $this->entityManager->flush();
-
-                    $this->addFlash('success', 'Account created successfully! You can now log in.');
-                    return $this->redirectToRoute('login');
-                }
-            } else {
-                $this->addFlash('error', 'All fields are required.');
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Check if user already exists
+            $existingUser = $this->entityManager->getRepository(User::class)->findByEmail($user->getEmail());
+            if ($existingUser) {
+                $this->addFlash('error', 'An account with this email already exists.');
+                return $this->render('security/register.html.twig', [
+                    'form' => $form,
+                ]);
             }
+
+            // Hash the password
+            $hashedPassword = $this->passwordHasher->hashPassword($user, $user->getPassword());
+            $user->setPassword($hashedPassword);
+
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Account created successfully! You can now log in.');
+            return $this->redirectToRoute('login');
         }
 
-        return $this->render('security/register.html.twig');
+        return $this->render('security/register.html.twig', [
+            'form' => $form,
+        ]);
     }
 }

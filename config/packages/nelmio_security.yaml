@@ -1,0 +1,43 @@
+nelmio_security:
+    # Content Security Policy - prevents XSS attacks
+    csp:
+        enabled: true
+
+    # HTTP Strict Transport Security - forces HTTPS
+    forced_ssl:
+        enabled: true
+        hsts_max_age: 31536000  # 1 year
+        hsts_subdomains: true
+        hsts_preload: true
+
+    # Prevents framing of the entire site (clickjacking protection)
+    clickjacking:
+        paths:
+            '^/.*': DENY
+
+    # Disables content type sniffing for script resources
+    content_type:
+        nosniff: true
+
+    # Referrer Policy - controls referrer information
+    referrer_policy:
+        enabled: true
+        policies:
+            - 'strict-origin-when-cross-origin'
+
+    # Additional security headers
+    flexible_ssl:
+        enabled: false  # Only enable if behind a load balancer/proxy
+
+    # External redirects protection
+    external_redirects:
+        abort: true
+        allow_list: []
+
+when@dev:
+    nelmio_security:
+        # In development, we still want security headers but with relaxed CSP
+        csp:
+            enabled: false  # Don't enforce CSP in dev to avoid blocking inline scripts/styles
+        forced_ssl:
+            enabled: false  # Disable HTTPS redirect in development

@@ -12,6 +12,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.4.2",
         "doctrine/migrations": "^3.9.4",
         "doctrine/orm": "^3.5.2",
+        "nelmio/security-bundle": "^3.6",
         "php-units-of-measure/php-units-of-measure": "^2.2",
         "symfony/asset": "7.3.*",
         "symfony/console": "7.3.*",

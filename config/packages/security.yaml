@@ -24,9 +24,13 @@ security:
                 check_path: login
                 default_target_path: dish_index
                 enable_csrf: true
+                success_handler: App\Security\AuthenticationSuccessHandler
             logout:
                 path: logout
                 target: home
+                invalidate_session: true
+                delete_cookies:
+                    - REMEMBERME
             remember_me:
                 secret: '%kernel.secret%'
                 lifetime: 604800 # 1 week

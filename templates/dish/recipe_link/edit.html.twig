@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Recipe Link - {{ dish.name }}{% endblock %}
+
+{% block body %}
+<div class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="mb-6">
+        <nav class="breadcrumb mb-4">
+            <a href="{{ path('dish_index') }}" class="breadcrumb-item">Dishes</a>
+            <a href="{{ path('dish_show', {'id': dish.id}) }}" class="breadcrumb-item">{{ dish.name }}</a>
+            <span class="breadcrumb-item active">Edit Recipe Link</span>
+        </nav>
+        
+        <h1 class="text-3xl font-bold">Edit Recipe Link</h1>
+        <p class="text-gray-600 mt-2">Edit recipe link for "{{ dish.name }}"</p>
+    </div>
+
+    <!-- Form -->
+    <div class="card">
+        <div class="card-body">
+            {{ form_start(form) }}
+                <div class="space-y-6">
+                    <div>
+                        {{ form_label(form.name, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.name) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(form.url, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.url, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.url) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(form.authorName, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.authorName, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.authorName) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(form.rating, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.rating, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.rating) }}
+                    </div>
+                </div>
+
+                <div class="flex gap-3 mt-8">
+                    <button type="submit" class="btn btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17,21 17,13 7,13 7,21"></polyline>
+                            <polyline points="7,3 7,8 15,8"></polyline>
+                        </svg>
+                        Update Recipe Link
+                    </button>
+                    <a href="{{ path('dish_show', {'id': dish.id}) }}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

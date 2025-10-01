@@ -12,6 +12,8 @@ use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use App\Validator\Constraints\NoHtml;
+use App\Validator\Constraints\NoScript;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -39,6 +41,8 @@ class UserRegistrationType extends AbstractType
                         'pattern' => '/^[a-zA-Z\s\-\']+$/',
                         'message' => 'First name can only contain letters, spaces, hyphens, and apostrophes',
                     ]),
+                    new NoHtml(),
+                    new NoScript(),
                 ],
                 'attr' => [
                     'placeholder' => 'Enter your first name',
@@ -62,6 +66,8 @@ class UserRegistrationType extends AbstractType
                         'pattern' => '/^[a-zA-Z\s\-\']+$/',
                         'message' => 'Last name can only contain letters, spaces, hyphens, and apostrophes',
                     ]),
+                    new NoHtml(),
+                    new NoScript(),
                 ],
                 'attr' => [
                     'placeholder' => 'Enter your last name',

@@ -11,8 +11,11 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use App\Validator\Constraints\NoHtml;
+use App\Validator\Constraints\NoScript;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 
 class DishType extends AbstractType
 {
@@ -32,6 +35,12 @@ class DishType extends AbstractType
                         'minMessage' => 'Dish name must be at least {{ limit }} characters long',
                         'maxMessage' => 'Dish name cannot be longer than {{ limit }} characters',
                     ]),
+                    new Regex([
+                        'pattern' => '/^[a-zA-Z0-9\s\-\'\.\,\&]+$/',
+                        'message' => 'Dish name can only contain letters, numbers, spaces, hyphens, apostrophes, periods, commas, and ampersands',
+                    ]),
+                    new NoHtml(),
+                    new NoScript(),
                 ],
                 'attr' => [
                     'placeholder' => 'Enter dish name',
@@ -46,6 +55,12 @@ class DishType extends AbstractType
                         'max' => 1000,
                         'maxMessage' => 'Description cannot be longer than {{ limit }} characters',
                     ]),
+                    new Regex([
+                        'pattern' => '/^[a-zA-Z0-9\s\-\'\.\,\&\:\;\!\?\(\)]+$/',
+                        'message' => 'Description contains invalid characters',
+                    ]),
+                    new NoHtml(),
+                    new NoScript(),
                 ],
                 'attr' => [
                     'placeholder' => 'Describe this dish (optional)',

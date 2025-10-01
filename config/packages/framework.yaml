@@ -3,7 +3,20 @@ framework:
     secret: '%env(APP_SECRET)%'
 
     # Note that the session will be started ONLY if you read or write from it.
-    session: true
+    session:
+        enabled: true
+        # Session cookie security settings
+        cookie_secure: 'auto'  # Automatically set to true in HTTPS environments
+        cookie_httponly: true  # Prevent JavaScript access to session cookies
+        cookie_samesite: 'lax'  # CSRF protection while maintaining usability
+        cookie_lifetime: 0  # Session cookie expires when browser closes
+        gc_maxlifetime: 3600  # 1 hour server-side session lifetime
+        gc_probability: 1
+        gc_divisor: 100
+        # Session storage configuration
+        storage_id: 'session.storage.native'
+        handler_id: 'session.handler.native_file'
+        save_path: '%kernel.cache_dir%/sessions'
 
     #esi: true
     #fragments: true
@@ -13,3 +26,17 @@ when@test:
         test: true
         session:
             storage_factory_id: session.storage.factory.mock_file
+
+when@prod:
+    framework:
+        session:
+            # Production session security settings
+            cookie_secure: true  # Force HTTPS cookies in production
+            cookie_httponly: true
+            cookie_samesite: 'strict'  # Stricter CSRF protection in production
+            gc_maxlifetime: 1800  # 30 minutes in production
+            gc_probability: 1
+            gc_divisor: 100
+            # Use Redis or database for session storage in production
+            # handler_id: 'session.handler.redis'
+            # save_path: 'redis://localhost:6379/0'

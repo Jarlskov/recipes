@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
@@ -26,11 +27,12 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/login', name: 'login')]
-    public function login(AuthenticationUtils $authenticationUtils, Request $request): Response
+    public function login(AuthenticationUtils $authenticationUtils, Request $request, SessionInterface $session): Response
     {
-        // if ($this->getUser()) {
-        //     return $this->redirectToRoute('target_path');
-        // }
+        // Check if user is already authenticated
+        if ($this->getUser()) {
+            return $this->redirectToRoute('dish_index');
+        }
 
         // Rate limiting by IP address
         $clientIp = $request->getClientIp();
@@ -57,6 +59,12 @@ class SecurityController extends AbstractController
                 ]);
             }
         }
+
+        // Regenerate session ID to prevent session fixation attacks
+        if (!$session->isStarted()) {
+            $session->start();
+        }
+        $session->migrate();
 
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();

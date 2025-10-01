@@ -14,7 +14,6 @@ framework:
         gc_probability: 1
         gc_divisor: 100
         # Session storage configuration
-        storage_id: 'session.storage.native'
         handler_id: 'session.handler.native_file'
         save_path: '%kernel.cache_dir%/sessions'
 

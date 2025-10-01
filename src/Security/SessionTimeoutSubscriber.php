@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Security;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -16,7 +16,7 @@ class SessionTimeoutSubscriber implements EventSubscriberInterface
     private const LAST_ACTIVITY_KEY = '_security.last_activity';
 
     public function __construct(
-        private SessionInterface $session,
+        private RequestStack $requestStack,
         private TokenStorageInterface $tokenStorage
     ) {
     }
@@ -35,6 +35,7 @@ class SessionTimeoutSubscriber implements EventSubscriberInterface
         }
 
         $request = $event->getRequest();
+        $session = $request->getSession();
         
         // Skip for public routes
         $publicRoutes = ['login', 'register', 'app_forgot_password_request', 'app_check_email', 'app_reset_password'];
@@ -50,22 +51,22 @@ class SessionTimeoutSubscriber implements EventSubscriberInterface
         }
 
         $currentTime = time();
-        $lastActivity = $this->session->get(self::LAST_ACTIVITY_KEY);
+        $lastActivity = $session->get(self::LAST_ACTIVITY_KEY);
 
         // If no last activity time is set, set it now
         if (!$lastActivity) {
-            $this->session->set(self::LAST_ACTIVITY_KEY, $currentTime);
+            $session->set(self::LAST_ACTIVITY_KEY, $currentTime);
             return;
         }
 
         // Check if session has expired
         if (($currentTime - $lastActivity) > self::SESSION_TIMEOUT) {
             // Session has expired, invalidate it
-            $this->session->invalidate();
+            $session->invalidate();
             $this->tokenStorage->setToken(null);
             
             // Add flash message for user feedback
-            $this->session->getFlashBag()->add('warning', 'Your session has expired due to inactivity. Please log in again.');
+            $session->getFlashBag()->add('warning', 'Your session has expired due to inactivity. Please log in again.');
             
             // Redirect to login page
             $event->setResponse(new \Symfony\Component\HttpFoundation\RedirectResponse('/login'));
@@ -73,7 +74,7 @@ class SessionTimeoutSubscriber implements EventSubscriberInterface
         }
 
         // Update last activity time
-        $this->session->set(self::LAST_ACTIVITY_KEY, $currentTime);
+        $session->set(self::LAST_ACTIVITY_KEY, $currentTime);
     }
 }
 

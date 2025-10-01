@@ -151,6 +151,37 @@
                     font-size: 0.75rem;
                 }
                 
+                /* Breadcrumbs */
+                .breadcrumb {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    font-size: 0.875rem;
+                    color: var(--text-secondary);
+                    margin-bottom: 1rem;
+                }
+                
+                .breadcrumb-item {
+                    color: var(--text-secondary);
+                    text-decoration: none;
+                    transition: color 0.2s;
+                }
+                
+                .breadcrumb-item:hover {
+                    color: var(--primary-color);
+                }
+                
+                .breadcrumb-item.active {
+                    color: var(--text-primary);
+                    font-weight: 500;
+                }
+                
+                .breadcrumb-item:not(:last-child)::after {
+                    content: '/';
+                    margin-left: 0.5rem;
+                    color: var(--text-secondary);
+                }
+                
                 /* Cards */
                 .card {
                     background: var(--surface);

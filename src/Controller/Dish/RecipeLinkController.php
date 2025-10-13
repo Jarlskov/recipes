@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/dish/{dishId}/recipe-link', name: 'dish_recipe_link_', requirements: ['dishId' => '\d+'])]
+#[Route('/dish/{id}/recipe-link', name: 'dish_recipe_link_', requirements: ['id' => '\d+'])]
 class RecipeLinkController extends AbstractController
 {
     public function __construct(

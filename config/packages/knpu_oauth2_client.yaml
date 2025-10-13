@@ -1,0 +1,12 @@
+knpu_oauth2_client:
+    clients:
+        # will create service: "knpu_oauth2_client.client.google"
+        google:
+            # this must be a unique key used to retrieve the client from the service container
+            type: google
+            # add your client_id and client_secret (from the previous step)
+            client_id: '%env(GOOGLE_CLIENT_ID)%'
+            client_secret: '%env(GOOGLE_CLIENT_SECRET)%'
+            # a route name you'll create
+            redirect_route: oauth_google_check
+            redirect_params: {}

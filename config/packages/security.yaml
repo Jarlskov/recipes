@@ -25,6 +25,8 @@ security:
                 default_target_path: dish_index
                 enable_csrf: true
                 success_handler: App\Security\AuthenticationSuccessHandler
+            custom_authenticators:
+                - App\Security\GoogleAuthenticator
             logout:
                 path: logout
                 target: home
@@ -43,6 +45,7 @@ security:
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/reset-password, roles: PUBLIC_ACCESS }
+        - { path: ^/connect, roles: PUBLIC_ACCESS }
         - { path: ^/, roles: ROLE_USER }
 
 when@test:

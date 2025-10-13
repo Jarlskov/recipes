@@ -20,13 +20,16 @@ class Ingredient
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: FoodItem::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?FoodItem $foodItem = null;
 
-    #[ORM\Column(type: Types::FLOAT)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $foodItemName = null;
+
+    #[ORM\Column(type: Types::FLOAT, nullable: true)]
     private ?float $amount = null;
 
-    #[ORM\Column(type: Types::STRING, length: 10)]
+    #[ORM\Column(type: Types::STRING, length: 10, nullable: true)]
     private ?string $unit = null;
 
     #[ORM\ManyToOne(targetEntity: Recipe::class, inversedBy: 'ingredients')]
@@ -46,6 +49,42 @@ class Ingredient
     public function setFoodItem(?FoodItem $foodItem): static
     {
         $this->foodItem = $foodItem;
+
+        return $this;
+    }
+
+    public function getFoodItemName(): ?string
+    {
+        return $this->foodItemName;
+    }
+
+    public function setFoodItemName(?string $foodItemName): static
+    {
+        $this->foodItemName = $foodItemName;
+
+        return $this;
+    }
+
+    public function getAmount(): ?float
+    {
+        return $this->amount;
+    }
+
+    public function setAmount(?float $amount): static
+    {
+        $this->amount = $amount;
+
+        return $this;
+    }
+
+    public function getUnit(): ?string
+    {
+        return $this->unit;
+    }
+
+    public function setUnit(?string $unit): static
+    {
+        $this->unit = $unit;
 
         return $this;
     }

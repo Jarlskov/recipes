@@ -1,0 +1,146 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ recipe.name }} - {{ dish.name }}{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+        <nav class="breadcrumb">
+            <a href="{{ path('dish_index') }}" class="breadcrumb-item">Dishes</a>
+            <a href="{{ path('dish_show', {'id': dish.id}) }}" class="breadcrumb-item">{{ dish.name }}</a>
+            <span class="breadcrumb-item active">{{ recipe.name }}</span>
+        </nav>
+    </div>
+
+    <!-- Header with actions -->
+    <div class="flex justify-between items-start mb-6">
+        <div>
+            <h1 class="text-3xl font-bold mb-4">{{ recipe.name }}</h1>
+            {% if recipe.description %}
+                <p class="text-lg text-gray-600 mb-4">{{ recipe.description }}</p>
+            {% endif %}
+            
+            {% if recipe.rating %}
+                <div class="mb-6">
+                    <span class="badge badge-info">{{ recipe.rating.label }}</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Action buttons -->
+        <div class="flex gap-2">
+            <a href="{{ path('dish_recipe_edit', {'id': dish.id, 'recipeId': recipe.id}) }}" class="btn-icon" title="Edit recipe">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+            </a>
+            <form method="post" action="{{ path('dish_recipe_delete', {'id': dish.id, 'recipeId': recipe.id}) }}" class="btn-icon-form" onsubmit="return confirm('Are you sure you want to delete this recipe?')">
+                <button type="submit" class="btn-icon btn-icon-danger" title="Delete recipe">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3,6 5,6 21,6"></polyline>
+                        <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Content sections -->
+    <div class="grid grid-2 gap-6">
+        <!-- Cooking Steps -->
+        <div class="card">
+            <div class="card-body">
+                <h2 class="text-xl font-semibold mb-4">Cooking Steps</h2>
+                {% if recipe.steps is empty %}
+                    <p class="text-gray-600">No cooking steps defined yet.</p>
+                {% else %}
+                    <div class="space-y-4">
+                        {% for step in recipe.steps %}
+                            <div class="flex items-start gap-3">
+                                <div class="flex-shrink-0 w-8 h-8 bg-primary-color text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                                    {{ loop.index }}
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-gray-800">{{ step }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Ingredients -->
+        <div class="card">
+            <div class="card-body">
+                <h2 class="text-xl font-semibold mb-4">Ingredients</h2>
+                {% if recipe.ingredients is empty %}
+                    <div class="text-center py-8">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="mx-auto text-gray-400 mb-4">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <path d="M16 10a4 4 0 0 1-8 0"></path>
+                        </svg>
+                        <p class="text-gray-600 mb-4">No ingredients added yet.</p>
+                        <p class="text-sm text-gray-500">Ingredients will be managed through the dish's food items.</p>
+                    </div>
+                {% else %}
+                    <div class="space-y-3">
+                        {% for ingredient in recipe.ingredients %}
+                            <div class="p-3 border border-gray-200 rounded-lg">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <span class="font-semibold">{{ ingredient.amount }} {{ ingredient.unit }}</span>
+                                        <span class="text-gray-600">{{ ingredient.foodItemName }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Notes Section -->
+    {% if recipe.notes %}
+        <div class="card mt-6">
+            <div class="card-body">
+                <h2 class="text-xl font-semibold mb-4">Notes</h2>
+                <div class="prose max-w-none">
+                    <p class="text-gray-700 whitespace-pre-line">{{ recipe.notes }}</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Cooking Sessions -->
+    {% if recipe.cookingSessions is not empty %}
+        <div class="card mt-6">
+            <div class="card-body">
+                <h2 class="text-xl font-semibold mb-4">Cooking History ({{ recipe.cookingSessions|length }})</h2>
+                <div class="space-y-3">
+                    {% for session in recipe.cookingSessions %}
+                        <div class="p-3 border border-gray-200 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <span class="font-semibold">{{ session.cookedAt|date('M j, Y') }}</span>
+                                    {% if session.notes %}
+                                        <p class="text-gray-600 text-sm">{{ session.notes }}</p>
+                                    {% endif %}
+                                </div>
+                                {% if session.rating %}
+                                    <span class="badge badge-info">{{ session.rating.label }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
